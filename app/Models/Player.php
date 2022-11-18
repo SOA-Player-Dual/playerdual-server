@@ -10,6 +10,9 @@ class Player extends Model
     use HasFactory;
     protected $table = 'Player';
     protected $primaryKey = 'id';
+    protected $casts = [
+        'id' => 'string'
+    ];
     public $timestamps = false;
     protected $fillable = [
         'fee',
@@ -22,5 +25,22 @@ class Player extends Model
         'album',
         'devices',
         'dateJoin',
+        'avgRate',
+        'totalRate',
     ];
+
+    public function playerGame()
+    {
+        return $this->hasMany(PlayerGame::class, 'player');
+    }
+
+    public function getGame()
+    {
+        return $this->hasManyThrough(Game::class, PlayerGame::class, 'player', 'id', 'id', 'game');
+    }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id');
+    }
 }

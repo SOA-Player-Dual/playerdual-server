@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Follow;
+use App\Models\Player;
 
 class FollowController extends Controller
 {
@@ -40,6 +41,11 @@ class FollowController extends Controller
             $follow->player_id = $request->player_id;
             $follow->user_id = $request->user_id;
             $store = $follow->save();
+
+            $player = Player::find($request->player_id);
+            $player->follower = $player->follower + 1;
+            $player->save();
+
             if ($store) {
                 return response()->json([
                     'message' => 'Followed',
@@ -98,9 +104,31 @@ class FollowController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        //
+        $follow = Follow::where('player_id', $request->player_id)
+            ->where('user_id', $request->user_id);
+
+        if ($follow) {
+            $player = Player::find($request->player_id);
+            $player->follower = $player->follower - 1;
+            $player->save();
+            $delete = Follow::where('player_id', $request->player_id)
+                ->where('user_id', $request->user_id)->delete();
+            if ($delete) {
+                return response()->json([
+                    'message' => 'Unfollowed',
+                ], 200);
+            } else {
+                return response()->json([
+                    'error' => 'Failed to unfollow',
+                ], 500);
+            }
+        } else {
+            return response()->json([
+                'error' => 'Failed to unfollow',
+            ], 500);
+        }
     }
 
     public function showFollower($id)

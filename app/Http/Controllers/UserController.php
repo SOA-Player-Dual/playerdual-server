@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\Rating;
+use App\Models\Player;
 use App\Http\Requests\UpdateUserRequest;
 
 class UserController extends Controller
@@ -16,6 +16,19 @@ class UserController extends Controller
      */
     public function index()
     {
+        //get all user sort by avgRate
+        $user = Player::with('getGame')
+            ->with('user')
+            ->orderBy('Player.avgRate', 'desc')->take(8)->get();
+
+        foreach ($user as $key => $value) {
+            unset($user[$key]['password']);
+            unset($user[$key]['username']);
+            unset($user[$key]['email']);
+        }
+        return response()->json([
+            'user' => $user,
+        ], 200);
     }
 
     /**
@@ -48,10 +61,13 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::where('User.id', $id)
-            ->join('Player', 'Player.id', '=', 'User.id')
-            ->select('User.*', 'Player.*')
+            ->with('player')
+            ->with('getGame')
             ->first();
         if ($user) {
+            unset($user['password']);
+            unset($user['username']);
+            unset($user['email']);
             return response()->json([
                 'user' => $user,
             ], 200);
@@ -65,27 +81,16 @@ class UserController extends Controller
     public function showByURLCode($urlCode)
     {
         $user = User::where('urlCode', $urlCode)
-            ->join('Player', 'Player.id', '=', 'User.id')
-            ->select('User.*', 'Player.*')
+            ->with('getGame')
+            ->with('player')
             ->first();
 
         if ($user) {
+            unset($user['password']);
+            unset($user['username']);
+            unset($user['email']);
             return response()->json([
-                'gender' => $user->gender,
-                'nickname' => $user->nickname,
-                'dateOfBirth' => $user->dateOfBirth,
-                'language' => $user->language,
-                'nation' => $user->nation,
-                'avatar' => $user->avatar,
-                'dateJoin' => $user->dateJoin,
-                'fee' => $user->fee,
-                'name' => $user->name,
-                'description' => $user->description,
-                'status' => $user->status,
-                'hiredTime' => $user->hiredTime,
-                'completeRate' => $user->completeRate,
-                'album' => $user->album,
-                'devives' => $user->devives,
+                'user' => $user,
             ], 200);
         } else {
             return response()->json([
@@ -136,33 +141,5 @@ class UserController extends Controller
     public function destroy($id)
     {
         //
-    }
-
-    public function getAll()
-    {
-
-        $user = User::join('Player', 'Player.id', '=', 'User.id')
-            ->select('User.avatar', 'User.urlCode', 'Player.name', 'Player.fee', 'Player.description')
-            ->orderBy('Player.completeRate', 'desc')
-            ->take(8)->get();
-        // get all user order by rating
-        // $users = User::join('Player', 'Player.id', '=', 'User.id')
-        //     ->join('Rating', 'Rating.player', '=', 'User.id')
-        //     ->select('User.*', 'Player.*', 'AVG(Rating.rate) as rating')
-        //     ->orderBy('Rating.rate', 'desc')
-        //     ->paginate(10);
-
-        // $user = User::join('Rating', 'Rating.player', '=', 'User.id')
-        //     ->join('Player', 'Player.id', '=', 'User.id')
-        //     ->select('User.*', 'Player.*')
-        //     ->groupBy('User.id')
-        //     ->orderByRaw('AVG(Rating.rate) DESC')
-        //     ->take(10)
-        //     ->get();
-
-
-        return response()->json([
-            'user' => $user,
-        ], 200);
     }
 }

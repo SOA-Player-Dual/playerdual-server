@@ -164,6 +164,19 @@ class ContractController extends Controller
                     ], 400);
                 }
             }
+            if ($request->status == self::contractStatus[3]) {
+                $contract->status = $request->status;
+                $update = $contract->save();
+                if ($update) {
+                    return response()->json([
+                        'message' => 'Contract canceled successfully'
+                    ], 200);
+                } else {
+                    return response()->json([
+                        'error' => 'Contract cancellation failed'
+                    ], 500);
+                }
+            }
             if ($contract->player == $request->actor_id) {
                 if ($contract->status == self::contractStatus[0] && ($request->status == self::contractStatus[1] || $request->status == self::contractStatus[3])) {
                     $contract->status = $request->status;
@@ -209,7 +222,7 @@ class ContractController extends Controller
     {
         $contract = Contract::where('user', $id)
             ->join('User', 'User.id', '=', 'Contract.player')
-            ->select('Contract.id', 'User.nickname as user_name', 'User.urlCode as user_url_code', 'User.avatar as avatar')
+            ->select('Contract.*', 'User.nickname as user_name', 'User.urlCode as user_url_code', 'User.avatar as avatar')
             ->get();
         if ($contract) {
             return response()->json([
@@ -226,7 +239,7 @@ class ContractController extends Controller
     {
         $contract = Contract::where('player', $id)
             ->join('User', 'User.id', '=', 'Contract.user')
-            ->select('Contract.id', 'User.nickname as user_name', 'User.urlCode as user_url_code', 'User.avatar as avatar')
+            ->select('Contract.*', 'User.nickname as user_name', 'User.urlCode as user_url_code', 'User.avatar as avatar')
             ->get();
         if ($contract) {
             return response()->json([

@@ -11,6 +11,7 @@ use App\Http\Controllers\DonateController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\PostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,6 +54,7 @@ Route::post('/rating', [RatingController::class, 'store']);
 Route::post('/follow', [FollowController::class, 'store']);
 Route::get('/follow/follower/{id}', [FollowController::class, 'showFollower']);
 Route::get('/follow/following/{id}', [FollowController::class, 'showFollowing']);
+Route::delete('/follow', [FollowController::class, 'destroy']);
 
 // Donate routes
 Route::post('/donate', [DonateController::class, 'store']);
@@ -60,3 +62,9 @@ Route::get('/donate/{id}', [DonateController::class, 'show']);
 
 // Search routes
 Route::get('/search', [SearchController::class, 'index']);
+
+// Post routes
+Route::get('/post/{id}', [PostController::class, 'show']);
+Route::post('/post', [PostController::class, 'store']);
+Route::put('/post/{id}', [PostController::class, 'update']);
+Route::delete('/post/{id}', [PostController::class, 'destroy']);

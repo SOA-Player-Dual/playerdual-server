@@ -2,15 +2,12 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Model;
 
-class User extends Authenticatable
+class User extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -20,6 +17,9 @@ class User extends Authenticatable
 
     protected $table = 'User';
     protected $primaryKey = 'id';
+    protected $casts = [
+        'id' => 'string'
+    ];
     public $timestamps = false;
     protected $fillable = [
         'username',
@@ -36,4 +36,19 @@ class User extends Authenticatable
         'dateJoin',
         'donateTotal',
     ];
+
+    public function playerGame()
+    {
+        return $this->hasMany(PlayerGame::class, 'player');
+    }
+
+    public function getGame()
+    {
+        return $this->hasManyThrough(Game::class, PlayerGame::class, 'player', 'id', 'id', 'game');
+    }
+
+    public function player()
+    {
+        return $this->hasOne(Player::class, 'id');
+    }
 }

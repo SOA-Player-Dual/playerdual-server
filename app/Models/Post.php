@@ -5,21 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Contract extends Model
+class Post extends Model
 {
     use HasFactory;
-    protected $table = 'Contract';
+
+    protected $table = 'Post';
     protected $primaryKey = 'id';
+    public $incrementing = false;
+    public $timestamps = true;
     protected $casts = [
         'id' => 'string'
     ];
-    public $timestamps = false;
     protected $fillable = [
         'user',
-        'player',
-        'time',
-        'fee',
-        'status',
+        'content',
+        'media',
         'created_at',
+        'updated_at',
     ];
 }

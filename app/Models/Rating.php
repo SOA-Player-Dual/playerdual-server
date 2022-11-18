@@ -17,4 +17,9 @@ class Rating extends Model
         'rate',
         'created_at'
     ];
+
+    public function product()
+    {
+        return $this->belongsTo('App\Models\User');
+    }
 }
