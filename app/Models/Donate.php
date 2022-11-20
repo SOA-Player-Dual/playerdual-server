@@ -20,4 +20,9 @@ class Donate extends Model
         'message',
         'created_at',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user');
+    }
 }

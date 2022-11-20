@@ -20,19 +20,17 @@ class User extends Model
     protected $casts = [
         'id' => 'string'
     ];
+    protected $hidden = ['email', 'password', 'username'];
     public $timestamps = false;
     protected $fillable = [
-        'username',
-        'password',
-        'email',
         'gender',
         'nickname',
         'dateOfBirth',
         'language',
         'nation',
+        'avatar',
         'urlCode',
         'balance',
-        'donate',
         'dateJoin',
         'donateTotal',
     ];
@@ -50,5 +48,11 @@ class User extends Model
     public function player()
     {
         return $this->hasOne(Player::class, 'id');
+    }
+
+    public function contract()
+    {
+        //has one contract with status is pending or canceled
+        return $this->hasOne(Contract::class, 'player')->where('status', 'Pending')->orWhere('status', 'Processing');
     }
 }

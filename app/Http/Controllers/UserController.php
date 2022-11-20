@@ -63,6 +63,7 @@ class UserController extends Controller
         $user = User::where('User.id', $id)
             ->with('player')
             ->with('getGame')
+            ->with('contract')
             ->first();
         if ($user) {
             unset($user['password']);
@@ -83,6 +84,7 @@ class UserController extends Controller
         $user = User::where('urlCode', $urlCode)
             ->with('getGame')
             ->with('player')
+            ->with('contract')
             ->first();
 
         if ($user) {
@@ -119,12 +121,28 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, $id)
     {
-        $user = User::where('id', $id)->first();
-        $update = $user->update($request->all());
-        if ($update) {
-            return response()->json([
-                'msg' => 'Update success',
-            ], 200);
+        $user = User::find($id);
+        if ($user) {
+            try {
+                $update = $user->update($request->all());
+                $dataResponse = User::where('id', $id)
+                    ->with('player')
+                    ->with('getGame')
+                    ->first();
+                return response()->json([
+                    'user' => $dataResponse,
+                ], 200);
+            } catch (\Exception $e) {
+                if ($request->has('urlCode') && $e->errorInfo[1] == 1062) {
+                    return response()->json([
+                        'error' => 'Url code already exists',
+                    ], 400);
+                } else {
+                    return response()->json([
+                        'error' => 'Failed to update user',
+                    ], 500);
+                }
+            }
         } else {
             return response()->json([
                 'error' => 'Update failed',

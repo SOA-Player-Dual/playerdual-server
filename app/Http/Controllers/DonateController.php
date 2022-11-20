@@ -74,12 +74,20 @@ class DonateController extends Controller
     public function show($id)
     {
         //get 10 row from donate order by sum of money desc
-        $donate = Donate::select('Donate.user', 'SUM(Donate.money)')
+        $donate = Donate::select('Donate.user', Donate::raw('SUM(Donate.money) as donateTotal'))
             ->where('Donate.player', $id)
-            ->groupBy('Donate.player')
-            ->orderByRaw('SUM(Donate.money) DESC')
+            ->groupBy('Donate.user')
+            ->orderByRaw('donateTotal DESC')
+            ->with('user')
             ->take(10)
             ->get();
+
+        //unset password, username and email
+        // foreach ($donate as $key => $value) {
+        //     unset($donate[$key]['password']);
+        //     unset($donate[$key]['username']);
+        //     unset($donate[$key]['email']);
+        // }
 
         return response()->json([
             'donate' => $donate,

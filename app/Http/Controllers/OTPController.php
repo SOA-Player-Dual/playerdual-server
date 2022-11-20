@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\OTPMail;
 use App\Models\OTP;
 use Carbon\Carbon;
+use App\Models\User;
+use Illuminate\Support\Str;
 
 class OTPController extends Controller
 {
@@ -14,30 +16,33 @@ class OTPController extends Controller
     {
         $otp_code = rand(100000, 999999);
         $user_id = $request->user_id;
-        $mail = $request->mail;
+        $mail = User::select('email')->where('id', $user_id)->first();
+        $mailData = $request->mailData;
+        $type = $request->type;
         if ($user_id == null) {
             return response()->json([
                 'error' => 'User ID is required',
             ], 422);
         }
-        if ($mail == null) {
+        if ($type == null) {
             return response()->json([
-                'error' => 'Mail is required',
+                'error' => 'Type is required',
             ], 422);
         }
 
         $store = null;
-        $update = null;
+        $update = false;
 
-        $otp = OTP::where('user', $user_id)->first();
+        $otp = OTP::where('user', $user_id)->where('type', $type)->first();
         if ($otp) {
-            $otp->otp = $otp_code;
-            $update = $otp->save();
+            $otp_code = $otp->otp;
+            $update = true;
         } else {
             $otp = new OTP();
+            $otp->id = Str::orderedUuid();
             $otp->user = $user_id;
-            $otp->mail = $mail;
             $otp->otp = $otp_code;
+            $otp->type = $type;
             $otp->expired_at = Carbon::now()->addMinutes(5);
             $store = $otp->save();
         }
@@ -63,15 +68,17 @@ class OTPController extends Controller
 
     public function verifyOTP(Request $request)
     {
-        $otp = OTP::where('user', $request->user_id)->where('otp', $request->otp)->first();
+        $otp = OTP::where('user', $request->user_id)
+            ->where('otp', $request->otp)
+            ->where('type', $request->type)
+            ->first();
         if ($otp) {
+            $otp->delete();
             if (Carbon::now()->lessThan($otp->expired_at)) {
-                $otp->delete();
                 return response()->json([
                     'message' => 'OTP is valid',
                 ], 200);
             } else {
-                $otp->delete();
                 return response()->json([
                     'error' => 'OTP is expired',
                 ], 422);

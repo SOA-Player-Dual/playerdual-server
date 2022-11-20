@@ -36,6 +36,11 @@ class FollowController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->player_id == $request->user_id) {
+            return response()->json([
+                'message' => 'You cannot follow yourself'
+            ], 400);
+        }
         try {
             $follow = new Follow();
             $follow->player_id = $request->player_id;

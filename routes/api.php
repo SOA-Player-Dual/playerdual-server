@@ -12,6 +12,8 @@ use App\Http\Controllers\GameController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PlayerGameController;
+use App\Http\Controllers\TopUpController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,8 +38,8 @@ Route::get('/game/{id}', [GameController::class, 'show']);
 Route::post('/game', [GameController::class, 'store']);
 
 // OTP routes
-Route::post('/otp/send', [OTPController::class, 'sendOTP']);
-Route::post('/otp/verify', [OTPController::class, 'verifyOTP']);
+Route::post('/otp/send', [OTPController::class, 'sendOTP'])->name('sendOTP');
+Route::post('/otp/verify', [OTPController::class, 'verifyOTP'])->name('verifyOTP');
 
 // Contract routes
 Route::post('/contract', [ContractController::class, 'store']);
@@ -54,7 +56,7 @@ Route::post('/rating', [RatingController::class, 'store']);
 Route::post('/follow', [FollowController::class, 'store']);
 Route::get('/follow/follower/{id}', [FollowController::class, 'showFollower']);
 Route::get('/follow/following/{id}', [FollowController::class, 'showFollowing']);
-Route::delete('/follow', [FollowController::class, 'destroy']);
+Route::put('/follow', [FollowController::class, 'destroy']);
 
 // Donate routes
 Route::post('/donate', [DonateController::class, 'store']);
@@ -68,3 +70,11 @@ Route::get('/post/{id}', [PostController::class, 'show']);
 Route::post('/post', [PostController::class, 'store']);
 Route::put('/post/{id}', [PostController::class, 'update']);
 Route::delete('/post/{id}', [PostController::class, 'destroy']);
+
+// PlayerGame routes
+Route::post('/playergame', [PlayerGameController::class, 'store']);
+Route::get('/playergame/{id}', [PlayerGameController::class, 'show']);
+
+// TopUp routes
+Route::post('/topup', [TopUpController::class, 'store']);
+Route::put('/topup/{id}', [TopUpController::class, 'update']);

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Rating;
 use App\Models\Contract;
 use Carbon\Carbon;
+use App\Models\Player;
 
 class RatingController extends Controller
 {
@@ -40,9 +41,35 @@ class RatingController extends Controller
         $contract = Contract::where([
             'user' => $request->user,
             'player' => $request->player,
+            'status' => 'Completed'
         ])->first();
-        if ($contract && $contract->status == "Completed") {
-            try {
+
+        if ($contract) {
+            $rating = Rating::where('user', $request->user)
+                ->where('player', $request->player)->first();
+            $player = Player::find($request->player);
+            if ($rating) {
+                // $rating->comment = $request->comment;
+                // $rating->rate = $request->rate;
+                // $rating->updated_at = Carbon::now();
+                $update = Rating::where('user', $request->user)
+                    ->where('player', $request->player)->update([
+                        'comment' => $request->comment,
+                        'rate' => $request->rate,
+                        'updated_at' => Carbon::now()
+                    ]);
+                $player->avgRate = ($request->rate) / $player->totalRate;
+                $player->save();
+                if ($update) {
+                    return response()->json([
+                        'message' => 'Rating has been updated',
+                    ], 200);
+                } else {
+                    return response()->json([
+                        'error' => 'Something went wrong',
+                    ], 500);
+                }
+            } else {
                 $rating = new Rating();
                 $rating->user = $request->user;
                 $rating->player = $request->player;
@@ -50,6 +77,9 @@ class RatingController extends Controller
                 $rating->rate = $request->rate;
                 $rating->created_at = Carbon::now();
                 $store = $rating->save();
+                $player->totalRate = $player->totalRate + 1;
+                $player->avgRate = ($request->rate + $player->avgRate) / $player->totalRate;
+                $player->save();
                 if ($store) {
                     return response()->json([
                         'message' => 'Rating has been stored',
@@ -59,17 +89,11 @@ class RatingController extends Controller
                         'error' => 'Something went wrong',
                     ], 500);
                 }
-            } catch (\Exception $e) {
-                if ($e->errorInfo[1] == 1062) {
-                    return response()->json([
-                        'error' => 'Already rated',
-                    ], 409);
-                }
             }
         } else {
             return response()->json([
                 'error' => 'You cannot rate this player',
-            ], 500);
+            ], 403);
         }
     }
 

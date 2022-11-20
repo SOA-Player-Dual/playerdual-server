@@ -15,7 +15,8 @@ class Rating extends Model
     protected $fillable = [
         'comment',
         'rate',
-        'created_at'
+        'created_at',
+        'updated_at'
     ];
 
     public function product()

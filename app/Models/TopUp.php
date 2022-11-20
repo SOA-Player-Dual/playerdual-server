@@ -5,16 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class OTP extends Model
+class TopUp extends Model
 {
     use HasFactory;
-    protected $table = 'OTP';
+    protected $table = 'TopUp';
     protected $primaryKey = 'id';
-    public $timestamps = false;
+    protected $casts = [
+        'id' => 'string'
+    ];
+    public $timestamps = true;
     protected $fillable = [
         'user',
-        'otp',
-        'expired_at',
-        'type'
+        'amount',
+        'created_at',
+        'updated_at',
     ];
 }
