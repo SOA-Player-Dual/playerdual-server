@@ -78,6 +78,7 @@ Route::get('/playergame/{id}', [PlayerGameController::class, 'show']);
 // Transaction routes
 Route::post('/transaction', [TransactionController::class, 'store']);
 Route::put('/transaction/{id}', [TransactionController::class, 'update']);
+Route::get('/transaction/{id}', [TransactionController::class, 'show']);
 
 // Recover password routes
 Route::post('/recover', [UserController::class, 'recoverPassword']);

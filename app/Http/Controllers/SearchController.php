@@ -16,7 +16,7 @@ class SearchController extends Controller
     public function index(Request $request)
     {
         $user = User::where('nickname', 'like', '%' . $request->input('searchKey') . '%')
-            ->select('id', 'nickname', 'urlCode')
+            ->select('id', 'nickname', 'urlCode', 'avatar')
             ->get();
         return response()->json([
             'user' => $user,

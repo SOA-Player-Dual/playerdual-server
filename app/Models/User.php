@@ -34,6 +34,7 @@ class User extends Model
         'dateJoin',
         'donateTotal',
         'role',
+        'isBanned',
     ];
 
     public function playerGame()
@@ -56,5 +57,15 @@ class User extends Model
         return $this->hasMany(Contract::class, 'player')
             ->where('status', 'Pending')
             ->orWhere('status', 'Processing');
+    }
+
+    public function follow()
+    {
+        return $this->hasMany(Follow::class, 'player_id');
+    }
+
+    public function post()
+    {
+        return $this->hasOne(Post::class, 'user');
     }
 }

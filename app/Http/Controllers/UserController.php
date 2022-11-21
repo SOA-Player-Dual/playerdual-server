@@ -69,11 +69,10 @@ class UserController extends Controller
             ->with('player')
             ->with('getGame')
             ->with('contract')
+            ->with('follow')
+            ->with('post')
             ->first();
         if ($user) {
-            unset($user['password']);
-            unset($user['username']);
-            unset($user['email']);
             return response()->json([
                 'user' => $user,
             ], 200);
@@ -90,12 +89,11 @@ class UserController extends Controller
             ->with('getGame')
             ->with('player')
             ->with('contract')
+            ->with('follow')
+            ->with('post')
             ->first();
 
         if ($user) {
-            unset($user['password']);
-            unset($user['username']);
-            unset($user['email']);
             return response()->json([
                 'user' => $user,
             ], 200);

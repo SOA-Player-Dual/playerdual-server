@@ -14,5 +14,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    // view with data
+    $mailData['otp'] = '1';
+    $mailData['name'] = '2';
+    $mailData['action'] = '3';
+    $mailData['amountInNumer'] = '4';
+    $mailData['amountInWord'] = '5';
+    return view('transaction', [
+        'mailData' => $mailData
+    ]);
 });

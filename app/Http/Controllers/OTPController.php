@@ -9,17 +9,18 @@ use App\Models\OTP;
 use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Support\Str;
+use PHPViet\NumberToWords\Transformer;
 
 class OTPController extends Controller
 {
+
     public function sendOTP(Request $request)
     {
         $otp_code = rand(100000, 999999);
         $store = null;
         $update = false;
         $user_id = $request->user_id;
-        $mail = User::select('email')->where('id', $user_id)->first();
-        $mailData = $request->mailData;
+        $user = User::where('id', $user_id)->first();
         $type = $request->type;
 
         $id = ($type == 'Register') ? Str::orderedUuid() : $request->actionId;
@@ -41,7 +42,13 @@ class OTPController extends Controller
             $store = $otp->save();
         }
         if ($store || $update) {
-            $sent = Mail::to($mail)->send(new OTPMail([
+            // $mailData['otp'] = $otp_code;
+            // $mailData['name'] = $user->name;
+            // if ($type != 'Register') {
+            //     $mailData['amountInNumber'] = $request->amount;
+            //     $mailData['amountInWord'] = (new Transformer())->toCurrency($request->amount);
+            // }
+            $sent = Mail::to($user->mail)->send(new OTPMail([
                 'otp' => $otp_code,
             ]));
             if ($sent) {

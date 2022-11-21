@@ -74,7 +74,17 @@ class TransactionController extends Controller
      */
     public function show($id)
     {
-        //
+        $topup = Transaction::where('user', $id)
+            ->where('amount', '>', 0);
+
+        $withdraw = Transaction::where('user', $id)
+            ->where('amount', '<', 0);
+        return response()->json([
+            'topupTotal' => $topup->sum('amount'),
+            'topup' => $topup->get(),
+            'withdrawTotal' => $withdraw->sum('amount'),
+            'withdraw' => $withdraw->get(),
+        ], 200);
     }
 
     /**

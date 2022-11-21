@@ -10,17 +10,17 @@ class Post extends Model
     use HasFactory;
 
     protected $table = 'Post';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'user';
     public $incrementing = false;
-    public $timestamps = true;
+    public $timestamps = false;
     protected $casts = [
-        'id' => 'string'
+        'user' => 'string'
     ];
     protected $fillable = [
-        'user',
         'content',
         'media',
         'created_at',
         'updated_at',
+        'type',
     ];
 }

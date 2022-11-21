@@ -37,22 +37,6 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        $post = new Post();
-        $post->id = Str::orderedUuid();
-        $post->user = $request->user;
-        $post->content = $request->content;
-        $post->media = $request->media;
-        $post->created_at = Carbon::now();
-        $store = $post->save();
-        if ($store) {
-            return response()->json([
-                'message' => 'Post has been stored',
-            ], 200);
-        } else {
-            return response()->json([
-                'error' => 'Something went wrong',
-            ], 500);
-        }
     }
 
     /**
@@ -63,16 +47,6 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        $post = Post::where('user', $id)->first();
-        if ($post) {
-            return response()->json([
-                'post' => $post,
-            ], 200);
-        } else {
-            return response()->json([
-                'error' => 'Post not found',
-            ], 404);
-        }
     }
 
     /**
@@ -95,25 +69,28 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $post = Post::where('user', $id)->first();
-        if ($post) {
-            $post->content = $request->content;
-            $post->media = $request->media;
-            $post->updated_at = Carbon::now();
-            $update = $post->save();
-            if ($update) {
-                return response()->json([
-                    'message' => 'Post has been updated',
-                ], 200);
-            } else {
-                return response()->json([
-                    'error' => 'Something went wrong',
-                ], 500);
-            }
+        $post = Post::firstOrCreate(
+            [
+                'user' => $id
+            ]
+        );
+        if ($post->user != $id) {
+            $post->user = $id;
+            $post->created_at = Carbon::now();
+        }
+        $post->content = $request->content;
+        $post->media = $request->media;
+        $post->type = $request->type;
+        $post->updated_at = Carbon::now();
+        $store = $post->save();
+        if ($store) {
+            return response()->json([
+                'post' => $post,
+            ], 200);
         } else {
             return response()->json([
-                'error' => 'Post not found',
-            ], 404);
+                'error' => 'Something went wrong',
+            ], 500);
         }
     }
 

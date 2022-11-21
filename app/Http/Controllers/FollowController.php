@@ -51,9 +51,13 @@ class FollowController extends Controller
             $player->follower = $player->follower + 1;
             $player->save();
 
+            $following = Follow::where('user_id', $request->user_id)->select('player_id')->get();
+            $playerFollower = Follow::where('player_id', $request->player_id)->count();
+
             if ($store) {
                 return response()->json([
-                    'message' => 'Followed',
+                    'following' => $following,
+                    'playerFollower' => $playerFollower
                 ], 200);
             } else {
                 return response()->json([
@@ -121,8 +125,11 @@ class FollowController extends Controller
             $delete = Follow::where('player_id', $request->player_id)
                 ->where('user_id', $request->user_id)->delete();
             if ($delete) {
+                $following = Follow::where('user_id', $request->user_id)->select('player_id')->get();
+                $playerFollower = Follow::where('player_id', $request->player_id)->count();
                 return response()->json([
-                    'message' => 'Unfollowed',
+                    'following' => $following,
+                    'playerFollower' => $playerFollower
                 ], 200);
             } else {
                 return response()->json([
@@ -140,7 +147,6 @@ class FollowController extends Controller
     {
         $follower = Follow::where('player_id', $id)
             ->join('User', 'User.id', '=', 'Follow.user_id')
-            ->select('User.avatar', 'User.nickname', 'User.urlCode')
             ->get();
         return response()->json([
             'follower' => $follower->count(),
@@ -152,7 +158,6 @@ class FollowController extends Controller
     {
         $following = Follow::where('user_id', $id)
             ->join('User', 'User.id', '=', 'Follow.player_id')
-            ->select('User.avatar', 'User.nickname', 'User.urlCode')
             ->get();
         return response()->json([
             'following' => $following->count(),
