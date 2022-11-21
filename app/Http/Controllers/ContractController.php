@@ -55,9 +55,14 @@ class ContractController extends Controller
                 $contract->status = self::contractStatus[0];
                 $contract->created_at = Carbon::now();
                 $store = $contract->save();
+                $contractResponse = Contract::where('user', $contract->user)
+                    ->where('status', self::contractStatus[0])
+                    ->orWhere('status', self::contractStatus[1])
+                    ->select('player')
+                    ->get();
                 if ($store) {
                     return response()->json([
-                        'message' => 'Contract created successfully'
+                        'contract' => $contractResponse
                     ], 200);
                 } else {
                     return response()->json([
@@ -142,12 +147,17 @@ class ContractController extends Controller
                         $update = $contract->save();
                         $user->balance = $user->balance - ($contract->fee * $contract->time);
                         $player->balance = $player->balance + ($contract->fee * $contract->time);
-                        $player->hiredTime = $player->hiredTime + $contract->time;
+                        Player::find($contract->player)->increment('hiredTime', $contract->time);
                         $user->save();
                         $player->save();
+                        $contractResponse = Contract::where('user', $contract->user)
+                            ->where('status', self::contractStatus[0])
+                            ->orWhere('status', self::contractStatus[1])
+                            ->select('player')
+                            ->get();
                         if ($update) {
                             return response()->json([
-                                'message' => 'Contract completed successfully'
+                                'contract' => $contractResponse
                             ], 200);
                         } else {
                             return response()->json([

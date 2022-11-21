@@ -46,18 +46,21 @@ class FollowController extends Controller
             $follow->player_id = $request->player_id;
             $follow->user_id = $request->user_id;
             $store = $follow->save();
+            // $store = true;
 
             $player = Player::find($request->player_id);
             $player->follower = $player->follower + 1;
             $player->save();
 
-            $following = Follow::where('user_id', $request->user_id)->select('player_id')->get();
-            $playerFollower = Follow::where('player_id', $request->player_id)->count();
+            $following =
+                Follow::where('user_id', $request->user_id)
+                ->join('User', 'User.id', '=', 'Follow.player_id')
+                ->get();
 
             if ($store) {
                 return response()->json([
                     'following' => $following,
-                    'playerFollower' => $playerFollower
+                    'playerFollower' => $following->count(),
                 ], 200);
             } else {
                 return response()->json([
@@ -125,11 +128,13 @@ class FollowController extends Controller
             $delete = Follow::where('player_id', $request->player_id)
                 ->where('user_id', $request->user_id)->delete();
             if ($delete) {
-                $following = Follow::where('user_id', $request->user_id)->select('player_id')->get();
-                $playerFollower = Follow::where('player_id', $request->player_id)->count();
+                $following =
+                    Follow::where('user_id', $request->user_id)
+                    ->join('User', 'User.id', '=', 'Follow.player_id')
+                    ->get();
                 return response()->json([
                     'following' => $following,
-                    'playerFollower' => $playerFollower
+                    'playerFollower' => $following->count(),
                 ], 200);
             } else {
                 return response()->json([
