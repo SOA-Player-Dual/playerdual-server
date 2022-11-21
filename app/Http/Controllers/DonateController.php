@@ -50,6 +50,9 @@ class DonateController extends Controller
             $donate->created_at = Carbon::now();
             $store = $donate->save();
             if ($store) {
+                $user = User::find($request->user);
+                $user->donateTotal = $user->donateTotal + $request->money;
+                $user->save();
                 return response()->json([
                     'message' => 'Donation has been stored',
                 ], 200);

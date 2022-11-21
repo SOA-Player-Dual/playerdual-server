@@ -116,7 +116,7 @@ class FollowController extends Controller
 
         if ($follow) {
             $player = Player::find($request->player_id);
-            $player->follower = $player->follower - 1;
+            $player->follower = ($player->follower == 0) ? 0 : $player->follower - 1;
             $player->save();
             $delete = Follow::where('player_id', $request->player_id)
                 ->where('user_id', $request->user_id)->delete();

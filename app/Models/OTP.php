@@ -10,6 +10,9 @@ class OTP extends Model
     use HasFactory;
     protected $table = 'OTP';
     protected $primaryKey = 'id';
+    protected $casts = [
+        'id' => 'string'
+    ];
     public $timestamps = false;
     protected $fillable = [
         'user',
@@ -17,4 +20,10 @@ class OTP extends Model
         'expired_at',
         'type'
     ];
+
+    public function getRoles()
+    {
+        //get role from user
+        return $this->belongsTo(User::class, 'user', 'id')->select('role');
+    }
 }

@@ -6,6 +6,11 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Player;
 use App\Http\Requests\UpdateUserRequest;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RecoveryPassword;
+use App\Models\OTP;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -159,5 +164,66 @@ class UserController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function recoverPassword(Request $request)
+    {
+        $user = User::where('username', $request->username)->first();
+        if ($user) {
+            $otp_code = rand(100000, 999999);
+            $otp = OTP::firstOrCreate(
+                [
+                    'user' => $user->id,
+                    'type' => 'Password Recovery',
+                ]
+            );
+
+            if ($otp->id == "0") {
+                $otp->id = Str::orderedUuid();
+                $otp->expired_at = Carbon::now()->addMinutes(5);
+                $otp->otp = $otp_code;
+                $otp->save();
+            } else {
+                $otp->expired_at = Carbon::now()->addMinutes(5);
+                $otp_code = $otp->otp;
+                $otp->save();
+            }
+            $data = [
+                'otp' => $otp->otp,
+                'username' => $user->username,
+            ];
+            Mail::to($user->email)->send(new RecoveryPassword($data));
+            return response()->json([
+                'message' => 'OTP has been sent to your email',
+            ], 200);
+        } else {
+            return response()->json([
+                'error' => 'User not found',
+            ], 404);
+        }
+    }
+
+    public function verifyRecoverPassword(Request $request)
+    {
+        $otp = OTP::where('otp', $request->otp)
+            ->where('type', 'Password Recovery')
+            ->first();
+        if ($otp) {
+            $otp->delete();
+            if (Carbon::now()->lessThan($otp->expired_at)) {
+                return response()->json([
+                    'userID' => $otp->user,
+                    'role' => $otp->getRoles->role,
+                ], 200);
+            } else {
+                return response()->json([
+                    'error' => 'OTP has expired',
+                ], 400);
+            }
+        } else {
+            return response()->json([
+                'error' => 'OTP is invalid',
+            ], 404);
+        }
     }
 }

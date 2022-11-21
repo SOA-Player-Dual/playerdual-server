@@ -43,7 +43,7 @@ class ContractController extends Controller
         $checkContract = Contract::where('player', $request->player)
             ->where('user', $request->user)
             ->first();
-        if (!$checkContract || $checkContract->status === self::contractStatus[3]) {
+        if (!$checkContract || $checkContract->status != self::contractStatus[1]) {
             try {
                 $fee = Player::select('fee')->where('id', $request->player)->first();
                 $contract = new Contract();
@@ -142,6 +142,7 @@ class ContractController extends Controller
                         $update = $contract->save();
                         $user->balance = $user->balance - ($contract->fee * $contract->time);
                         $player->balance = $player->balance + ($contract->fee * $contract->time);
+                        $player->hiredTime = $player->hiredTime + $contract->time;
                         $user->save();
                         $player->save();
                         if ($update) {

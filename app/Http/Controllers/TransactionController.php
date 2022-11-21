@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\OTPController;
-use App\Models\TopUp;
+use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Models\User;
 
-class TopUpController extends Controller
+class TransactionController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -39,25 +39,29 @@ class TopUpController extends Controller
      */
     public function store(Request $request)
     {
-        $topUp = TopUp::firstOrCreate([
+        $topUp = Transaction::firstOrCreate([
             'user' => $request->user,
             'amount' => $request->amount,
+            'created_at' => Carbon::now(),
         ]);
         $topUp->id = Str::orderedUuid();
-        $topUp->created_at = Carbon::now();
         $store = $topUp->save();
 
         if ($store) {
             $otpRequest = new Request();
             $otpRequest->user_id = $request->user;
-            $otpRequest->type = "Top Up";
-            (new OTPController)->sendOTP($otpRequest);
+            $otpRequest->type = 'Transaction';
+            $otpRequest->actionId = $topUp->id;
+            $otpRequest->mailData = [
+                'amount' => $request->amount,
+            ];
+            return (new OTPController)->sendOTP($otpRequest);
             return response()->json([
                 'message' => 'Please check your email for OTP',
             ], 200);
         } else {
             return response()->json([
-                'error' => 'Failed to top up'
+                'error' => 'Failed to transaction',
             ], 500);
         }
     }
@@ -95,21 +99,21 @@ class TopUpController extends Controller
     {
         $otpRequest = new Request();
         $otpRequest->user_id = $id;
-        $otpRequest->type = "Top Up";
+        $otpRequest->type = 'Transaction';
         $otpRequest->otp = $request->otp;
         $responseVerify = (new OTPController)->verifyOTP($otpRequest);
         if ($responseVerify->getStatusCode() == 200) {
-            $topUp = TopUp::where('user', $id)->first();
+            $topUp = Transaction::where('id', $responseVerify->original['id'])->first();
             $topUp->updated_at = Carbon::now();
             $update = $topUp->save();
             User::where('id', $id)->increment('balance', $topUp->amount);
             if ($update) {
                 return response()->json([
-                    'message' => 'Top up successfully'
+                    'message' => 'Transaction successfully'
                 ], 200);
             } else {
                 return response()->json([
-                    'error' => 'Failed to top up'
+                    'error' => 'Failed to Transaction'
                 ], 500);
             }
         } else {

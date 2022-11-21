@@ -33,6 +33,7 @@ class User extends Model
         'balance',
         'dateJoin',
         'donateTotal',
+        'role',
     ];
 
     public function playerGame()
@@ -52,7 +53,8 @@ class User extends Model
 
     public function contract()
     {
-        //has one contract with status is pending or canceled
-        return $this->hasOne(Contract::class, 'player')->where('status', 'Pending')->orWhere('status', 'Processing');
+        return $this->hasMany(Contract::class, 'player')
+            ->where('status', 'Pending')
+            ->orWhere('status', 'Processing');
     }
 }

@@ -5,15 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TopUp extends Model
+class Transaction extends Model
 {
     use HasFactory;
-    protected $table = 'TopUp';
+    protected $table = 'Transaction';
     protected $primaryKey = 'id';
     protected $casts = [
         'id' => 'string'
     ];
-    public $timestamps = true;
+    public $timestamps = false;
     protected $fillable = [
         'user',
         'amount',

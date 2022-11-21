@@ -13,7 +13,7 @@ use App\Http\Controllers\ContractController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PlayerGameController;
-use App\Http\Controllers\TopUpController;
+use App\Http\Controllers\TransactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +75,10 @@ Route::delete('/post/{id}', [PostController::class, 'destroy']);
 Route::post('/playergame', [PlayerGameController::class, 'store']);
 Route::get('/playergame/{id}', [PlayerGameController::class, 'show']);
 
-// TopUp routes
-Route::post('/topup', [TopUpController::class, 'store']);
-Route::put('/topup/{id}', [TopUpController::class, 'update']);
+// Transaction routes
+Route::post('/transaction', [TransactionController::class, 'store']);
+Route::put('/transaction/{id}', [TransactionController::class, 'update']);
+
+// Recover password routes
+Route::post('/recover', [UserController::class, 'recoverPassword']);
+Route::post('/recover/verify', [UserController::class, 'verifyRecoverPassword']);

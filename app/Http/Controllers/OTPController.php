@@ -15,31 +15,25 @@ class OTPController extends Controller
     public function sendOTP(Request $request)
     {
         $otp_code = rand(100000, 999999);
+        $store = null;
+        $update = false;
         $user_id = $request->user_id;
         $mail = User::select('email')->where('id', $user_id)->first();
         $mailData = $request->mailData;
         $type = $request->type;
-        if ($user_id == null) {
-            return response()->json([
-                'error' => 'User ID is required',
-            ], 422);
-        }
-        if ($type == null) {
-            return response()->json([
-                'error' => 'Type is required',
-            ], 422);
-        }
 
-        $store = null;
-        $update = false;
+        $id = ($type == 'Register') ? Str::orderedUuid() : $request->actionId;
 
-        $otp = OTP::where('user', $user_id)->where('type', $type)->first();
+        $otp = ($type == 'Register') ?
+            OTP::where('user', $user_id)->where('type', $type)->first() :
+            OTP::where('id', $id)->first();
+
         if ($otp) {
             $otp_code = $otp->otp;
             $update = true;
         } else {
             $otp = new OTP();
-            $otp->id = Str::orderedUuid();
+            $otp->id = $id;
             $otp->user = $user_id;
             $otp->otp = $otp_code;
             $otp->type = $type;
@@ -75,9 +69,10 @@ class OTPController extends Controller
         if ($otp) {
             $otp->delete();
             if (Carbon::now()->lessThan($otp->expired_at)) {
-                return response()->json([
-                    'message' => 'OTP is valid',
-                ], 200);
+                return response()->json(
+                    ($otp->type == 'Register') ? ['message' => 'OTP is valid'] : ['id' => $otp->id],
+                    200
+                );
             } else {
                 return response()->json([
                     'error' => 'OTP is expired',
