@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\PlayerGame;
+use App\Models\User;
 
-class PlayerGameController extends Controller
+class AdminController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -24,7 +24,7 @@ class PlayerGameController extends Controller
      */
     public function create()
     {
-        //         
+        //
     }
 
     /**
@@ -35,19 +35,7 @@ class PlayerGameController extends Controller
      */
     public function store(Request $request)
     {
-        PlayerGame::where('player', $request->player)->delete();
-        foreach ($request->game as $key => $value) {
-            try {
-                $playerGame = new PlayerGame();
-                $playerGame->player = $request->player;
-                $playerGame->game = $value;
-                $playerGame->save();
-            } catch (\Exception $e) {
-            }
-        }
-        return response()->json([
-            'message' => 'Success',
-        ], 200);
+        //
     }
 
     /**
@@ -58,14 +46,7 @@ class PlayerGameController extends Controller
      */
     public function show($id)
     {
-        $players = PlayerGame::where('game', $id)
-            ->join('Player', 'Player.id', '=', 'PlayerGame.player')
-            ->select('Player.*')
-            ->with('user')
-            ->get();
-        return response()->json([
-            'user' => $players,
-        ], 200);
+        //
     }
 
     /**
@@ -86,8 +67,9 @@ class PlayerGameController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
+        //
     }
 
     /**
@@ -99,5 +81,37 @@ class PlayerGameController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function bannedUserByID($id)
+    {
+        $user = User::find($id)->update([
+            'isBanned' => 'Banned',
+        ]);
+        if ($user) {
+            return response()->json([
+                'message' => 'Success',
+            ], 200);
+        } else {
+            return response()->json([
+                'error' => 'Failed',
+            ], 400);
+        }
+    }
+
+    public function activeUserByID($id)
+    {
+        $user = User::find($id)->update([
+            'isBanned' => 'Active',
+        ]);
+        if ($user) {
+            return response()->json([
+                'message' => 'Success',
+            ], 200);
+        } else {
+            return response()->json([
+                'error' => 'Failed',
+            ], 400);
+        }
     }
 }

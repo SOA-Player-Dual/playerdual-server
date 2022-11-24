@@ -17,7 +17,6 @@ Route::get('/', function () {
     // view with data
     $mailData['otp'] = '1';
     $mailData['name'] = '2';
-    $mailData['action'] = '3';
     $mailData['amountInNumer'] = '4';
     $mailData['amountInWord'] = '5';
     return view('transaction', [

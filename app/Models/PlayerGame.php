@@ -16,6 +16,11 @@ class PlayerGame extends Model
 
     public function game()
     {
-        return $this->hasOne(Game::class, 'id');
+        return $this->hasOne(Game::class, 'game', 'id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id');
     }
 }

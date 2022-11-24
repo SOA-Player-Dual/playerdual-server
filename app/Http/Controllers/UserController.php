@@ -24,15 +24,10 @@ class UserController extends Controller
         //get all user sort by avgRate
         $user = Player::with('getGame')
             ->with('user')
-            ->orderBy('Player.avgRate', 'desc')->take(8)->get();
+            ->orderBy('Player.avgRate', 'desc')->get();
 
-        foreach ($user as $key => $value) {
-            unset($user[$key]['password']);
-            unset($user[$key]['username']);
-            unset($user[$key]['email']);
-        }
         return response()->json([
-            'user' => $user,
+            'user' => $user->makeHidden(['user.password', 'user.username', 'user.email'])
         ], 200);
     }
 
@@ -223,5 +218,19 @@ class UserController extends Controller
                 'error' => 'OTP is invalid',
             ], 404);
         }
+    }
+
+    public function getByGender($gender)
+    {
+        $player = Player::where('gender', $gender)
+            ->join('User', 'User.id', '=', 'Player.id')
+            ->select('Player.*')
+            ->where('User.gender', $gender)
+            ->with('user')
+            ->get();
+
+        return response()->json([
+            'user' => $player,
+        ], 200);
     }
 }

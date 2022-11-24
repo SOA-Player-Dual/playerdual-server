@@ -56,11 +56,10 @@ class FollowController extends Controller
                 Follow::where('user_id', $request->user_id)
                 ->join('User', 'User.id', '=', 'Follow.player_id')
                 ->get();
-
             if ($store) {
                 return response()->json([
                     'following' => $following,
-                    'playerFollower' => $following->count(),
+                    'playerFollower' => $player->follower,
                 ], 200);
             } else {
                 return response()->json([
@@ -134,7 +133,8 @@ class FollowController extends Controller
                     ->get();
                 return response()->json([
                     'following' => $following,
-                    'playerFollower' => $following->count(),
+                    'playerFollower' =>
+                    $player->follower,
                 ], 200);
             } else {
                 return response()->json([

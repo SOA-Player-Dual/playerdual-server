@@ -14,6 +14,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\PlayerGameController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,7 @@ Route::get('/user/id/{id}', [UserController::class, 'show']);
 Route::get('/user/{urlCode}', [UserController::class, 'showByURLCode']);
 Route::put('/user/{id}', [UserController::class, 'update']);
 Route::get('/user', [UserController::class, 'index']);
+Route::get('/user/gender/{gender}', [UserController::class, 'getByGender']);
 
 // Game routes
 Route::get('/game', [GameController::class, 'index']);
@@ -83,3 +85,7 @@ Route::get('/transaction/{id}', [TransactionController::class, 'show']);
 // Recover password routes
 Route::post('/recover', [UserController::class, 'recoverPassword']);
 Route::post('/recover/verify', [UserController::class, 'verifyRecoverPassword']);
+
+// Admin routes
+Route::put('/admin/{id}/banned', [AdminController::class, 'bannedUserByID']);
+Route::put('/admin/{id}/active', [AdminController::class, 'activeUserByID']);
