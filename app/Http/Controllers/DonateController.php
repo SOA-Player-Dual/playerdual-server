@@ -51,7 +51,7 @@ class DonateController extends Controller
             $store = $donate->save();
             if ($store) {
                 $user = User::find($request->user)->decrement('balance', $request->money);
-                $player = User::find($request->player)->increment('donateTotal', $request->money);
+                $player = User::find($request->player)->increment('donateTotal', ($request->money) * 0.9);
                 return response()->json([
                     'message' => 'Donation has been stored',
                 ], 200);

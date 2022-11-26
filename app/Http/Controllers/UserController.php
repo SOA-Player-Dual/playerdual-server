@@ -11,6 +11,7 @@ use App\Mail\RecoveryPassword;
 use App\Models\OTP;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use App\Mail\RecoverPasswordOTPMail;
 
 class UserController extends Controller
 {
@@ -67,6 +68,9 @@ class UserController extends Controller
             ->with('follow')
             ->with('post')
             ->first();
+        if ($user->post->type == 'Video') {
+            $user->post->media = self::getYoutubeId($user->post->media);
+        }
         if ($user) {
             return response()->json([
                 'user' => $user,
@@ -87,7 +91,9 @@ class UserController extends Controller
             ->with('follow')
             ->with('post')
             ->first();
-
+        if ($user->post->type == 'Video') {
+            $user->post->media = self::getYoutubeId($user->post->media);
+        }
         if ($user) {
             return response()->json([
                 'user' => $user,
@@ -185,7 +191,7 @@ class UserController extends Controller
                 'otp' => $otp->otp,
                 'username' => $user->username,
             ];
-            Mail::to($user->email)->send(new RecoveryPassword($data));
+            Mail::to($user->email)->send(new RecoverPasswordOTPMail($data));
             return response()->json([
                 'message' => 'OTP has been sent to your email',
             ], 200);
@@ -232,5 +238,19 @@ class UserController extends Controller
         return response()->json([
             'user' => $player,
         ], 200);
+    }
+
+    public function getYoutubeId($url)
+    {
+        $shortUrlRegex = '/youtu.be\/([a-zA-Z0-9_-]+)\??/i';
+        $longUrlRegex = '/youtube.com\/((?:embed)|(?:watch))((?:\?v\=)|(?:\/))([a-zA-Z0-9_-]+)/i';
+        if (preg_match($longUrlRegex, $url, $matches)) {
+            $youtube_id = $matches[count($matches) - 1];
+        }
+
+        if (preg_match($shortUrlRegex, $url, $matches)) {
+            $youtube_id = $matches[count($matches) - 1];
+        }
+        return $youtube_id;
     }
 }

@@ -10,10 +10,11 @@ use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Support\Str;
 use PHPViet\NumberToWords\Transformer;
+use App\Mail\TransactionOTPMail;
+use App\Mail\RegisterOTPMail;
 
 class OTPController extends Controller
 {
-
     public function sendOTP(Request $request)
     {
         $otp_code = rand(100000, 999999);
@@ -42,15 +43,16 @@ class OTPController extends Controller
             $store = $otp->save();
         }
         if ($store || $update) {
-            // $mailData['otp'] = $otp_code;
-            // $mailData['name'] = $user->name;
-            // if ($type != 'Register') {
-            //     $mailData['amountInNumber'] = $request->amount;
-            //     $mailData['amountInWord'] = (new Transformer())->toCurrency($request->amount);
-            // }
-            $sent = Mail::to($user->mail)->send(new OTPMail([
-                'otp' => $otp_code,
-            ]));
+            $mailData['otp'] = $otp_code;
+            $mailData['name'] = $user->nickname;
+            if ($type != 'Register') {
+                $mailData['amountInNumber'] = $request->amount;
+                $mailData['amountInWord'] = (new Transformer())->toCurrency(($request->amount < 0) ? $request->amount * -1 : $request->amount);
+                $mailData['type'] = ($request->amount < 0) ? 'rút tiền' : 'nạp tiền';
+                $sent = Mail::to($user->email)->send(new TransactionOTPMail($mailData));
+            } else {
+                $sent = Mail::to($user->email)->send(new RegisterOTPMail($mailData));
+            }
             if ($sent) {
                 return response()->json([
                     'message' => 'OTP has been sent to your mail',

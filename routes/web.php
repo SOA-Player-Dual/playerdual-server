@@ -15,11 +15,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     // view with data
+    // $mailData['type'] = '11';
     $mailData['otp'] = '1';
     $mailData['name'] = '2';
-    $mailData['amountInNumer'] = '4';
-    $mailData['amountInWord'] = '5';
-    return view('transaction', [
+    $mailData['phone'] = '4';
+    return view('register', [
         'mailData' => $mailData
     ]);
 });

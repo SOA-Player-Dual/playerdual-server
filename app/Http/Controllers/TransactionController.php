@@ -8,6 +8,9 @@ use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TransactionSuccessOTPMail;
+use PHPViet\NumberToWords\Transformer;
 
 class TransactionController extends Controller
 {
@@ -52,10 +55,8 @@ class TransactionController extends Controller
             $otpRequest->user_id = $request->user;
             $otpRequest->type = 'Transaction';
             $otpRequest->actionId = $topUp->id;
-            $otpRequest->mailData = [
-                'amount' => $request->amount,
-            ];
-            return (new OTPController)->sendOTP($otpRequest);
+            $otpRequest->amount = $request->amount;
+            (new OTPController)->sendOTP($otpRequest);
             return response()->json([
                 'message' => 'Please check your email for OTP',
             ], 200);
@@ -116,7 +117,14 @@ class TransactionController extends Controller
             $topUp = Transaction::where('id', $responseVerify->original['id'])->first();
             $topUp->updated_at = Carbon::now();
             $update = $topUp->save();
-            User::where('id', $id)->increment('balance', $topUp->amount);
+            $user = User::where('id', $id)->first();
+            $user->balance = $user->balance + $topUp->amount;
+            $user->save();
+            $mailData['type'] = ($topUp->amount > 0) ? 'Nạp tiền' : 'Rút tiền';
+            $mailData['name'] = $user->name;
+            $mailData['amountInNumber'] = ($topUp->amount > 0) ? $topUp->amount : -$topUp->amount;
+            $mailData['amountInWord'] = (new Transformer)->toCurrency($topUp->amount);
+            Mail::to($user->email)->send(new TransactionSuccessOTPMail($mailData));
             if ($update) {
                 return response()->json([
                     'message' => 'Transaction successfully'

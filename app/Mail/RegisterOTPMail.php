@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class TransactionOTPMail extends Mailable
+class RegisterOTPMail extends Mailable
 {
     use Queueable, SerializesModels;
     public $mailData;
@@ -21,7 +21,7 @@ class TransactionOTPMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Transaction OTP')
-            ->view('transaction');
+        return $this->subject('Register OTP')
+            ->view('register');
     }
 }

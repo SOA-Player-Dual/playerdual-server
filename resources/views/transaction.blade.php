@@ -57,14 +57,14 @@
                     <img src="{{asset('/logo.png')}}" style="width: 110px; height: 110px; display: block" alt="" />
                 </div>
                 <p style="font-size: 1.1em">Chào, {{$mailData['name']}}</p>
-                <p>Bạn đang thực hiện thao tác nạp tiền vào tài khoản</p>
+                <p>Bạn đang thực hiện thao tác {{$mailData['type']}}</p>
                 <p>Dưới đây là thông tin chi tiết</p>
                 <div style="padding: 0 0 0 32px">
                     <p style="margin: 0; opacity: 0.6">
                         Hình thức: Nạp tiền
                     </p>
                     <p style="margin: 0; opacity: 0.6">
-                        Số tiền bằng số: {{$mailData['amountInNumer']}}
+                        Số tiền bằng số: {{$mailData['amountInNumber']}}
                         <span style="opacity: 1; color: #fe2c55">VND</span>
                     </p>
                     <p style="margin: 0; opacity: 0.6">
@@ -72,7 +72,7 @@
                     </p>
                 </div>
                 <p>
-                    Sử dụng mã OTP dưới đây để hoàn thành việc nạp tiền.
+                    Sử dụng mã OTP dưới đây để hoàn thành việc {{$mailData['type']}}.
                 </p>
                 <h2 style="
                             background: #fe2c55;
