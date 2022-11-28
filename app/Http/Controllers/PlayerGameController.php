@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PlayerGame;
+use App\Http\Controllers\UserController;
 
 class PlayerGameController extends Controller
 {
@@ -45,9 +46,7 @@ class PlayerGameController extends Controller
             } catch (\Exception $e) {
             }
         }
-        return response()->json([
-            'message' => 'Success',
-        ], 200);
+        return (new UserController())->show($request->player);
     }
 
     /**

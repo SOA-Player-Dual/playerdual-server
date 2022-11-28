@@ -50,10 +50,14 @@ class DonateController extends Controller
             $donate->created_at = Carbon::now();
             $store = $donate->save();
             if ($store) {
-                $user = User::find($request->user)->decrement('balance', $request->money);
+                $user = User::where('id', $request->user)->first();
+                $user->balance = $user->balance - $request->money;
+                $user->save();
                 $player = User::find($request->player)->increment('donateTotal', ($request->money) * 0.9);
                 return response()->json([
-                    'message' => 'Donation has been stored',
+                    'balance' => $user->balance,
+                    'donateHistory' => self::getDonateHistory($request->user)->original['donate'],
+                    'topDonate' => self::show($request->player)->original['donate'],
                 ], 200);
             } else {
                 return response()->json([
@@ -62,7 +66,7 @@ class DonateController extends Controller
             }
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'Something went wrong',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -91,6 +95,15 @@ class DonateController extends Controller
         //     unset($donate[$key]['email']);
         // }
 
+        return response()->json([
+            'donate' => $donate,
+        ], 200);
+    }
+
+    public function getDonateHistory($user)
+    {
+        $donate = Donate::where('user', $user)
+            ->get();
         return response()->json([
             'donate' => $donate,
         ], 200);

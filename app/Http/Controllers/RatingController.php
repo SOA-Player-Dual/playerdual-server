@@ -108,7 +108,7 @@ class RatingController extends Controller
         $rating = Rating::where('player', $id)
             ->join('User', 'User.id', '=', 'Rating.user')
             ->select('Rating.comment', 'Rating.rate', 'Rating.created_at', 'User.nickname', 'User.avatar', 'User.urlCode')
-            ->paginate(10);
+            ->get();
 
         if ($rating) {
             return response()->json([

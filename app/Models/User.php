@@ -54,7 +54,7 @@ class User extends Model
 
     public function contract()
     {
-        return $this->hasMany(Contract::class, 'player')
+        return $this->hasMany(Contract::class, 'user')
             ->where('status', 'Pending')
             ->orWhere('status', 'Processing');
     }
@@ -67,5 +67,10 @@ class User extends Model
     public function post()
     {
         return $this->hasOne(Post::class, 'user');
+    }
+
+    public function donateHistory()
+    {
+        return $this->hasMany(Donate::class, 'user');
     }
 }

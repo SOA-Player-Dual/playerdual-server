@@ -12,6 +12,9 @@ class Donate extends Model
     protected $primaryKey = 'id';
     public $incrementing = true;
     public $timestamps = false;
+    protected $casts = [
+        'id' => 'string'
+    ];
     protected $fillable = [
         'user',
         'player',

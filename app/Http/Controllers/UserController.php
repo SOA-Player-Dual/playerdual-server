@@ -67,10 +67,8 @@ class UserController extends Controller
             ->with('contract')
             ->with('follow')
             ->with('post')
+            ->with('donateHistory')
             ->first();
-        if ($user->post->type == 'Video') {
-            $user->post->media = self::getYoutubeId($user->post->media);
-        }
         if ($user) {
             return response()->json([
                 'user' => $user,
@@ -90,10 +88,8 @@ class UserController extends Controller
             ->with('contract')
             ->with('follow')
             ->with('post')
+            ->with('donateHistory')
             ->first();
-        if ($user->post->type == 'Video') {
-            $user->post->media = self::getYoutubeId($user->post->media);
-        }
         if ($user) {
             return response()->json([
                 'user' => $user,

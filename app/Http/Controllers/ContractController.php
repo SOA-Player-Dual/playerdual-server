@@ -40,10 +40,9 @@ class ContractController extends Controller
      */
     public function store(Request $request)
     {
-        $checkContract = Contract::where('player', $request->player)
-            ->where('user', $request->user)
-            ->first();
-        if (!$checkContract || $checkContract->status != self::contractStatus[1]) {
+        $pendingContract = Contract::where(['player' => $request->player, 'user' => $request->user, 'status' => 'Pending'])->first();
+        $processingContract = Contract::where(['player' => $request->player, 'user' => $request->user, 'status' => 'Processing'])->first();
+        if (!$pendingContract && !$processingContract) {
             try {
                 $fee = Player::select('fee')->where('id', $request->player)->first();
                 $contract = new Contract();
@@ -58,7 +57,7 @@ class ContractController extends Controller
                 $contractResponse = Contract::where('user', $contract->user)
                     ->where('status', self::contractStatus[0])
                     ->orWhere('status', self::contractStatus[1])
-                    ->select('player')
+                    ->select('player', 'status')
                     ->get();
                 if ($store) {
                     return response()->json([
@@ -153,7 +152,7 @@ class ContractController extends Controller
                         $contractResponse = Contract::where('user', $contract->user)
                             ->where('status', self::contractStatus[0])
                             ->orWhere('status', self::contractStatus[1])
-                            ->select('player')
+                            ->select('player', 'status')
                             ->get();
                         if ($update) {
                             return response()->json([
