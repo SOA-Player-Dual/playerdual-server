@@ -61,7 +61,7 @@
                 <p>Dưới đây là thông tin chi tiết</p>
                 <div style="padding: 0 0 0 32px">
                     <p style="margin: 0; opacity: 0.6">
-                        Hình thức: Nạp tiền
+                        Hình thức: {{$mailData['type']}}
                     </p>
                     <p style="margin: 0; opacity: 0.6">
                         Số tiền bằng số: {{$mailData['amountInNumber']}}

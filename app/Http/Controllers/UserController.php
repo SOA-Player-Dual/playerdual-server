@@ -124,13 +124,10 @@ class UserController extends Controller
         $user = User::find($id);
         if ($user) {
             try {
-                $update = $user->update($request->all());
-                $dataResponse = User::where('id', $id)
-                    ->with('player')
-                    ->with('getGame')
-                    ->first();
+                $user->update($request->all());
+                $user->player->update($request->all());
                 return response()->json([
-                    'user' => $dataResponse,
+                    'user' => self::show($id)->original['user'],
                 ], 200);
             } catch (\Exception $e) {
                 if ($request->has('urlCode') && $e->errorInfo[1] == 1062) {

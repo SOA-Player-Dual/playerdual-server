@@ -21,7 +21,8 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        //
+        $transaction = Transaction::all();
+        return response()->json($transaction, 200);
     }
 
     /**
@@ -122,12 +123,13 @@ class TransactionController extends Controller
             $user->save();
             $mailData['type'] = ($topUp->amount > 0) ? 'Nạp tiền' : 'Rút tiền';
             $mailData['name'] = $user->name;
-            $mailData['amountInNumber'] = ($topUp->amount > 0) ? $topUp->amount : -$topUp->amount;
+            $mailData['amountInNumber'] = ($topUp->amount > 0) ? $topUp->amount : $topUp->amount;
             $mailData['amountInWord'] = (new Transformer)->toCurrency($topUp->amount);
             Mail::to($user->email)->send(new TransactionSuccessOTPMail($mailData));
             if ($update) {
                 return response()->json([
-                    'message' => 'Transaction successfully'
+                    'balance' => $user->balance,
+                    'transaction' => self::show($user->id)->original,
                 ], 200);
             } else {
                 return response()->json([
