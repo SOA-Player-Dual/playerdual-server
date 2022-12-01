@@ -22,6 +22,11 @@ class OTPController extends Controller
         $update = false;
         $user_id = $request->user_id;
         $user = User::where('id', $user_id)->first();
+        if ($request->type == 'Transaction' && $user->balance < ($request->amount * -1)) {
+            return response()->json([
+                'message' => 'Your balance is not enough to withdraw',
+            ], 400);
+        }
         $type = $request->type;
 
         $id = ($type == 'Register') ? Str::orderedUuid() : $request->actionId;
@@ -46,8 +51,9 @@ class OTPController extends Controller
             $mailData['otp'] = $otp_code;
             $mailData['name'] = $user->nickname;
             if ($type != 'Register') {
-                $mailData['amountInNumber'] = $request->amount;
-                $mailData['amountInWord'] = (new Transformer())->toCurrency(($request->amount < 0) ? $request->amount * -1 : $request->amount);
+                $mailData['amountInNumber'] = ($request->amount < 0) ? $request->amount * -1 * 0.9 : $request->amount;
+                $mailData['amountInWord'] = (new Transformer())->toCurrency(($request->amount < 0) ? $request->amount * -1 * 0.9 : $request->amount);
+                $mailData['fee'] = ($request->amount < 0) ? $request->amount * -1 * 0.1 : 0;
                 $mailData['type'] = ($request->amount < 0) ? 'rút tiền' : 'nạp tiền';
                 $sent = Mail::to($user->email)->send(new TransactionOTPMail($mailData));
             } else {

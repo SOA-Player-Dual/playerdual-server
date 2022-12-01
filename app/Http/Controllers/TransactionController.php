@@ -21,7 +21,7 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        $transaction = Transaction::all();
+        $transaction = Transaction::where('updated_at', '!=', null)->get();
         return response()->json($transaction, 200);
     }
 
@@ -45,7 +45,8 @@ class TransactionController extends Controller
     {
         $topUp = Transaction::firstOrCreate([
             'user' => $request->user,
-            'amount' => $request->amount,
+            'amount' => ($request->amount > 0) ? $request->amount : $request->amount * 0.9,
+            'fee' => ($request->amount > 0) ? 0 : $request->amount * -1 * 0.1,
             'created_at' => Carbon::now(),
         ]);
         $topUp->id = Str::orderedUuid();
@@ -57,10 +58,17 @@ class TransactionController extends Controller
             $otpRequest->type = 'Transaction';
             $otpRequest->actionId = $topUp->id;
             $otpRequest->amount = $request->amount;
-            (new OTPController)->sendOTP($otpRequest);
-            return response()->json([
-                'message' => 'Please check your email for OTP',
-            ], 200);
+            $response = (new OTPController)->sendOTP($otpRequest);
+            if ($response->getStatusCode() == 200) {
+                return response()->json([
+                    'message' => 'Please check your email for OTP',
+                ], 200);
+            } else {
+                $topUp->delete();
+                return response()->json([
+                    $response->original,
+                ], 400);
+            }
         } else {
             return response()->json([
                 'error' => 'Failed to transaction',
@@ -77,10 +85,12 @@ class TransactionController extends Controller
     public function show($id)
     {
         $topup = Transaction::where('user', $id)
-            ->where('amount', '>', 0);
+            ->where('amount', '>', 0)
+            ->where('updated_at', '!=', null);
 
         $withdraw = Transaction::where('user', $id)
-            ->where('amount', '<', 0);
+            ->where('amount', '<', 0)
+            ->where('updated_at', '!=', null);
         return response()->json([
             'topupTotal' => $topup->sum('amount'),
             'topup' => $topup->get(),
@@ -119,12 +129,15 @@ class TransactionController extends Controller
             $topUp->updated_at = Carbon::now();
             $update = $topUp->save();
             $user = User::where('id', $id)->first();
-            $user->balance = $user->balance + $topUp->amount;
+            $user->balance = $user->balance + $topUp->amount + ($topUp->fee * -1);
             $user->save();
             $mailData['type'] = ($topUp->amount > 0) ? 'Nạp tiền' : 'Rút tiền';
             $mailData['name'] = $user->name;
-            $mailData['amountInNumber'] = ($topUp->amount > 0) ? $topUp->amount : $topUp->amount;
-            $mailData['amountInWord'] = (new Transformer)->toCurrency($topUp->amount);
+            // $mailData['amountInNumber'] = ($topUp->amount > 0) ? $topUp->amount : $topUp->amount;
+            // $mailData['amountInWord'] = (new Transformer)->toCurrency($topUp->amount);
+            $mailData['amountInNumber'] = $topUp->amount * -1;
+            $mailData['amountInWord'] = (new Transformer())->toCurrency($topUp->amount * -1);
+            $mailData['fee'] = $topUp->fee;
             Mail::to($user->email)->send(new TransactionSuccessOTPMail($mailData));
             if ($update) {
                 return response()->json([

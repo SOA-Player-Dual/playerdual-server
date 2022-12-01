@@ -19,6 +19,7 @@ class Donate extends Model
         'user',
         'player',
         'money',
+        'fee',
         'displayName',
         'message',
         'created_at',

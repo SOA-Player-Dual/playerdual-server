@@ -40,17 +40,23 @@ class DonateController extends Controller
     public function store(DonateRequest $request)
     {
         try {
+            $user = User::where('id', $request->user)->first();
+            if ($user->balance < $request->money) {
+                return response()->json([
+                    'message' => 'Balance is not enough',
+                ], 400);
+            }
             $donate = new Donate();
             $donate->id = Str::orderedUuid();
             $donate->user = $request->user;
             $donate->player = $request->player;
-            $donate->money = $request->money;
+            $donate->money = $request->money * 0.9;
+            $donate->fee = $request->money * 0.1;
             $donate->displayName = $request->displayName;
             $donate->message = $request->message;
             $donate->created_at = Carbon::now();
             $store = $donate->save();
             if ($store) {
-                $user = User::where('id', $request->user)->first();
                 $user->balance = $user->balance - $request->money;
                 $user->save();
                 $player = User::find($request->player)->increment('donateTotal', ($request->money) * 0.9);

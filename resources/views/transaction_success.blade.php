@@ -91,6 +91,7 @@
                 <div>Họ và tên: {{$mailData['name']}}</div>
                 <div>Số tiền bằng số: {{$mailData['amountInNumber']}}</div>
                 <div>Số tiền bằng chữ: {{$mailData['amountInWord']}}</div>
+                <div>Phí: {{$mailData['fee']}}</div>
             </div>
             <hr style="width: 20%; opacity: 0.4" />
             <div style="padding-top: 16px">

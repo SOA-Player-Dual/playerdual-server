@@ -70,6 +70,10 @@
                     <p style="margin: 0; opacity: 0.6">
                         Số tiền bằng chữ: {{$mailData['amountInWord']}}
                     </p>
+                    <p style="margin: 0; opacity: 0.6">
+                        Phí: {{$mailData['fee']}}
+                        <span style="opacity: 1; color: #fe2c55">VND</span>
+                    </p>
                 </div>
                 <p>
                     Sử dụng mã OTP dưới đây để hoàn thành việc {{$mailData['type']}}.
