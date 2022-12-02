@@ -8,6 +8,8 @@ use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Models\Player;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ContractNotificationMail;
 
 class ContractController extends Controller
 {
@@ -42,6 +44,7 @@ class ContractController extends Controller
     {
         $pendingContract = Contract::where(['player' => $request->player, 'user' => $request->user, 'status' => 'Pending'])->first();
         $processingContract = Contract::where(['player' => $request->player, 'user' => $request->user, 'status' => 'Processing'])->first();
+        $playerMail = User::where('id', $request->player)->first()->email;
         if (!$pendingContract && !$processingContract) {
             try {
                 $fee = Player::select('fee')->where('id', $request->player)->first();
@@ -60,6 +63,10 @@ class ContractController extends Controller
                     ->select('player', 'status')
                     ->get();
                 if ($store) {
+                    $mailData['name'] = User::select('nickname')->where('id', $contract->user)->first()->nickname;
+                    $mailData['time'] = $contract->time;
+                    $mailData['fee'] = $contract->fee * $contract->time;
+                    Mail::to($playerMail)->send(new ContractNotificationMail($mailData));
                     return response()->json([
                         'contract' => $contractResponse
                     ], 200);
@@ -70,7 +77,8 @@ class ContractController extends Controller
                 }
             } catch (\Exception $e) {
                 return response()->json([
-                    'error' => 'Something went wrong',
+                    // 'error' => 'Something went wrong',
+                    'error' => $e->getMessage()
                 ], 500);
             }
         } else {
