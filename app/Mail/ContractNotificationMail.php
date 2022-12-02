@@ -21,7 +21,7 @@ class ContractNotificationMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Register OTP')
+        return $this->subject('Rent Notifications')
             ->view('contract');
     }
 }
