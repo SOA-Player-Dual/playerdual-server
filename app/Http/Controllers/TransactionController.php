@@ -47,7 +47,7 @@ class TransactionController extends Controller
             'user' => $request->user,
             'amount' => ($request->amount > 0) ? $request->amount : $request->amount * 0.9,
             'fee' => ($request->amount > 0) ? 0 : $request->amount * -1 * 0.1,
-            'created_at' => Carbon::now(),
+            'created_at' => Carbon::now('Asia/Ho_Chi_Minh'),
         ]);
         $topUp->id = Str::orderedUuid();
         $store = $topUp->save();
@@ -91,6 +91,7 @@ class TransactionController extends Controller
         $withdraw = Transaction::where('user', $id)
             ->where('amount', '<', 0)
             ->where('updated_at', '!=', null);
+
         return response()->json([
             'topupTotal' => $topup->sum('amount'),
             'topup' => $topup->get(),
@@ -126,7 +127,7 @@ class TransactionController extends Controller
         $responseVerify = (new OTPController)->verifyOTP($otpRequest);
         if ($responseVerify->getStatusCode() == 200) {
             $topUp = Transaction::where('id', $responseVerify->original['id'])->first();
-            $topUp->updated_at = Carbon::now();
+            $topUp->updated_at = Carbon::now('Asia/Ho_Chi_Minh');
             $update = $topUp->save();
             $user = User::where('id', $id)->first();
             $user->balance = $user->balance + $topUp->amount + ($topUp->fee * -1);

@@ -22,4 +22,9 @@ class Contract extends Model
         'status',
         'created_at',
     ];
+
+    public function player()
+    {
+        return $this->hasOne(Player::class, 'id', 'player')->with('user');
+    }
 }

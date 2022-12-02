@@ -52,7 +52,7 @@ class ContractController extends Controller
                 $contract->time = $request->time;
                 $contract->fee = $fee->fee;
                 $contract->status = self::contractStatus[0];
-                $contract->created_at = Carbon::now();
+                $contract->created_at = Carbon::now('Asia/Ho_Chi_Minh');
                 $store = $contract->save();
                 $contractResponse = Contract::where('user', $contract->user)
                     ->where('status', self::contractStatus[0])
@@ -139,7 +139,7 @@ class ContractController extends Controller
             if ($request->status == self::contractStatus[2]) {
                 if ($contract->status == self::contractStatus[1]) {
                     $completeTime = Carbon::parse($contract->created_at)->addMinutes($contract->time * 60);
-                    if (Carbon::now()->isAfter($completeTime)) {
+                    if (Carbon::now('Asia/Ho_Chi_Minh')->isAfter($completeTime)) {
                         $user = User::where('id', '=', $contract->user)->first();
                         $player = User::where('id', '=', $contract->player)->first();
                         $contract->status = $request->status;
@@ -193,7 +193,7 @@ class ContractController extends Controller
                     $update = $contract->save();
                     if ($update) {
                         return response()->json([
-                            'message' => 'Contract updated successfully'
+                            'data' => self::showByUserPlayerID($request->actor_id)->original['data']
                         ], 200);
                     } else {
                         return response()->json([

@@ -54,7 +54,7 @@ class DonateController extends Controller
             $donate->fee = $request->money * 0.1;
             $donate->displayName = $request->displayName;
             $donate->message = $request->message;
-            $donate->created_at = Carbon::now();
+            $donate->created_at = Carbon::now('Asia/Ho_Chi_Minh');
             $store = $donate->save();
             if ($store) {
                 $user->balance = $user->balance - $request->money;

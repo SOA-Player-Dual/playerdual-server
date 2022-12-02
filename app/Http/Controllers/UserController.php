@@ -172,11 +172,11 @@ class UserController extends Controller
 
             if ($otp->id == "0") {
                 $otp->id = Str::orderedUuid();
-                $otp->expired_at = Carbon::now()->addMinutes(5);
+                $otp->expired_at = Carbon::now('Asia/Ho_Chi_Minh')->addMinutes(5);
                 $otp->otp = $otp_code;
                 $otp->save();
             } else {
-                $otp->expired_at = Carbon::now()->addMinutes(5);
+                $otp->expired_at = Carbon::now('Asia/Ho_Chi_Minh')->addMinutes(5);
                 $otp_code = $otp->otp;
                 $otp->save();
             }
@@ -202,7 +202,7 @@ class UserController extends Controller
             ->first();
         if ($otp) {
             $otp->delete();
-            if (Carbon::now()->lessThan($otp->expired_at)) {
+            if (Carbon::now('Asia/Ho_Chi_Minh')->lessThan($otp->expired_at)) {
                 return response()->json([
                     'userID' => $otp->user,
                     'role' => $otp->getRoles->role,

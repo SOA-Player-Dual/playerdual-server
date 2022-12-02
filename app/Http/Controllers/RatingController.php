@@ -56,7 +56,7 @@ class RatingController extends Controller
                     ->where('player', $request->player)->update([
                         'comment' => $request->comment,
                         'rate' => $request->rate,
-                        'updated_at' => Carbon::now()
+                        'updated_at' => Carbon::now('Asia/Ho_Chi_Minh')
                     ]);
                 $player->avgRate = ($request->rate) / $player->totalRate;
                 $player->save();
@@ -75,7 +75,7 @@ class RatingController extends Controller
                 $rating->player = $request->player;
                 $rating->comment = $request->comment;
                 $rating->rate = $request->rate;
-                $rating->created_at = Carbon::now();
+                $rating->created_at = Carbon::now('Asia/Ho_Chi_Minh');
                 $store = $rating->save();
                 $player->totalRate = $player->totalRate + 1;
                 $player->avgRate = ($request->rate + $player->avgRate) / $player->totalRate;

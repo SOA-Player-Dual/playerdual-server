@@ -44,7 +44,7 @@ class OTPController extends Controller
             $otp->user = $user_id;
             $otp->otp = $otp_code;
             $otp->type = $type;
-            $otp->expired_at = Carbon::now()->addMinutes(5);
+            $otp->expired_at = Carbon::now('Asia/Ho_Chi_Minh')->addMinutes(5);
             $store = $otp->save();
         }
         if ($store || $update) {
@@ -83,7 +83,7 @@ class OTPController extends Controller
             ->first();
         if ($otp) {
             $otp->delete();
-            if (Carbon::now()->lessThan($otp->expired_at)) {
+            if (Carbon::now('Asia/Ho_Chi_Minh')->lessThan($otp->expired_at)) {
                 return response()->json(
                     ($otp->type == 'Register') ? ['message' => 'OTP is valid'] : ['id' => $otp->id],
                     200

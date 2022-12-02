@@ -76,12 +76,12 @@ class PostController extends Controller
         );
         if ($post->user != $id) {
             $post->user = $id;
-            $post->created_at = Carbon::now();
+            $post->created_at = Carbon::now('Asia/Ho_Chi_Minh');
         }
         $post->content = $request->content;
         $post->media = $request->media;
         $post->type = $request->type;
-        $post->updated_at = Carbon::now();
+        $post->updated_at = Carbon::now('Asia/Ho_Chi_Minh');
         $store = $post->save();
         if ($store) {
             return response()->json([

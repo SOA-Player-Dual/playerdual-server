@@ -54,9 +54,11 @@ class User extends Model
 
     public function contract()
     {
-        return $this->hasMany(Contract::class, 'user')
-            ->where('status', 'Pending')
-            ->orWhere('status', 'Processing');
+        // return $this->hasMany(Contract::class, 'user')
+        //     ->where('status', 'Pending')
+        //     ->orWhere('status', 'Processing');
+
+        return $this->hasManyThrough(Contract::class, Player::class, 'id', 'user', 'id', 'Contract.user');
     }
 
     public function follow()
