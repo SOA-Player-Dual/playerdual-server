@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Post;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use App\Models\User;
 
 class PostController extends Controller
 {
@@ -85,7 +86,7 @@ class PostController extends Controller
         $store = $post->save();
         if ($store) {
             return response()->json([
-                'post' => $post,
+                'post' => User::where('id', $id)->with('post')->get()[0]->post,
             ], 200);
         } else {
             return response()->json([
