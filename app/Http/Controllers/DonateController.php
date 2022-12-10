@@ -59,7 +59,7 @@ class DonateController extends Controller
             if ($store) {
                 $user->balance = $user->balance - $request->money;
                 $user->save();
-                $player = User::find($request->player)->increment('donateTotal', ($request->money) * 0.9);
+                $player = User::find($request->player)->increment('balance', ($request->money) * 0.9);
                 return response()->json([
                     'balance' => $user->balance,
                     'donateHistory' => self::getDonateHistory($request->user)->original['donate'],

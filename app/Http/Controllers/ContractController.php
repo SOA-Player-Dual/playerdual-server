@@ -57,6 +57,7 @@ class ContractController extends Controller
                 $contract->status = self::contractStatus[0];
                 $contract->created_at = Carbon::now('Asia/Ho_Chi_Minh');
                 $store = $contract->save();
+                User::find($contract->user)->decrement('balance', $contract->fee * $contract->time);
                 $contractResponse = Contract::where('user', $contract->user)
                     ->where('status', self::contractStatus[0])
                     ->orWhere('status', self::contractStatus[1])
@@ -152,7 +153,6 @@ class ContractController extends Controller
                         $player = User::where('id', '=', $contract->player)->first();
                         $contract->status = $request->status;
                         $update = $contract->save();
-                        $user->balance = $user->balance - ($contract->fee * $contract->time);
                         $player->balance = $player->balance + ($contract->fee * $contract->time);
                         Player::find($contract->player)->increment('hiredTime', $contract->time);
                         $user->save();
@@ -184,6 +184,7 @@ class ContractController extends Controller
             }
             if ($request->status == self::contractStatus[3]) {
                 $contract->status = $request->status;
+                User::find($contract->user)->increment('balance', $contract->fee * $contract->time);
                 $update = $contract->save();
                 if ($update) {
                     return response()->json([
