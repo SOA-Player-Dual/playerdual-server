@@ -10,6 +10,7 @@ use App\Models\Player;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ContractNotificationMail;
+use Illuminate\Support\Facades\DB;
 
 class ContractController extends Controller
 {
@@ -42,6 +43,11 @@ class ContractController extends Controller
      */
     public function store(Request $request)
     {
+        if (Contract::where('player', $request->player)->where('status', 'Processing')->first()) {
+            return response()->json([
+                'error' => 'Player is busy',
+            ], 400);
+        }
         $pendingContract = Contract::where(['player' => $request->player, 'user' => $request->user, 'status' => 'Pending'])->first();
         $processingContract = Contract::where(['player' => $request->player, 'user' => $request->user, 'status' => 'Processing'])->first();
         $playerMail = User::where('id', $request->player)->first()->email;
@@ -200,6 +206,16 @@ class ContractController extends Controller
                 if ($contract->status == self::contractStatus[0] && ($request->status == self::contractStatus[1] || $request->status == self::contractStatus[3])) {
                     $contract->status = $request->status;
                     $update = $contract->save();
+                    if ($request->status == self::contractStatus[1]) {
+                        Contract::where([
+                            ['player', '=', $request->actor_id],
+                            ['status', '=', self::contractStatus[0]],
+                            ['user', '!=', $contract->user]
+                        ])->update(['status' => self::contractStatus[3]]);
+                        User::where('User.id', '!=', $contract->user)
+                            ->join('Contract', 'Contract.user', '=', 'User.id')
+                            ->update(['User.balance' => DB::raw('User.balance + Contract.fee * Contract.time')]);
+                    }
                     if ($update) {
                         return response()->json([
                             'data' => self::showByUserPlayerID($request->actor_id)->original['data']
